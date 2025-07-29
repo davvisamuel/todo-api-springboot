@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 public class TaskPostRequest {
 
-  private String title;
-  private String description;
+    private String title;
+    private String description;
 }

@@ -1,12 +1,11 @@
-package schneider.davi.to_do_app.response;
+package schneider.davi.to_do_app.request;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class TaskGetResponse {
-
+public class TaskPutRequest {
     private Long id;
     private String title;
     private String description;

@@ -5,8 +5,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import schneider.davi.to_do_app.mapper.TaskMapper;
 import schneider.davi.to_do_app.request.TaskPostRequest;
+import schneider.davi.to_do_app.request.TaskPutRequest;
 import schneider.davi.to_do_app.response.TaskGetResponse;
 import schneider.davi.to_do_app.response.TaskPostResponse;
+import schneider.davi.to_do_app.response.TaskPutResponse;
 import schneider.davi.to_do_app.service.TaskService;
 
 import java.util.List;
@@ -42,5 +44,16 @@ public class TaskController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping
+    public ResponseEntity<TaskPutResponse> update(@RequestBody TaskPutRequest taskPutRequest) {
+        var task = mapper.toTask(taskPutRequest);
+
+        var updatedTask = service.update(task);
+
+        var taskPutResponse = mapper.toTaskPutResponse(updatedTask);
+
+        return ResponseEntity.ok(taskPutResponse);
     }
 }

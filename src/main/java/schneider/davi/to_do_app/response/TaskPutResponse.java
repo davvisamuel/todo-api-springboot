@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class TaskGetResponse {
+public class TaskPutResponse {
 
     private Long id;
     private String title;

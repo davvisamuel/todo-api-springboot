@@ -7,5 +7,5 @@ import lombok.Setter;
 @Setter
 public class TaskPostResponse {
 
-  private Long id;
+    private Long id;
 }

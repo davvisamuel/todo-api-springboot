@@ -31,4 +31,13 @@ public class TaskService {
         repository.delete(taskToDelete);
     }
 
+    public Task update(Task taskToUpdate) {
+        assertTaskExists(taskToUpdate.getId());
+        return repository.save(taskToUpdate);
+    }
+
+    private void assertTaskExists(Long id) {
+        findById(id);
+    }
+
 }
