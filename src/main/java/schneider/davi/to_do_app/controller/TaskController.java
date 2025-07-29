@@ -1,5 +1,6 @@
 package schneider.davi.to_do_app.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class TaskController {
     private final TaskMapper mapper;
 
     @PostMapping
-    public ResponseEntity<TaskPostResponse> save(@RequestBody TaskPostRequest taskPostRequest) {
+    public ResponseEntity<TaskPostResponse> save(@RequestBody @Valid TaskPostRequest taskPostRequest) {
         var task = mapper.toTask(taskPostRequest);
 
         var savedTask = service.save(task);
@@ -47,7 +48,7 @@ public class TaskController {
     }
 
     @PutMapping
-    public ResponseEntity<TaskPutResponse> update(@RequestBody TaskPutRequest taskPutRequest) {
+    public ResponseEntity<TaskPutResponse> update(@RequestBody @Valid TaskPutRequest taskPutRequest) {
         var task = mapper.toTask(taskPutRequest);
 
         var updatedTask = service.update(task);
