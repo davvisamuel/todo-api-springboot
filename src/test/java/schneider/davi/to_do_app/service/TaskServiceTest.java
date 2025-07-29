@@ -37,4 +37,20 @@ class TaskServiceTest {
                 .hasNoNullFieldsOrProperties()
                 .isEqualTo(expectedSavedTask);
     }
+
+    @Test
+    @Order(2)
+    @DisplayName("findAll returns a list of all tasks")
+    void findAll_ReturnsAllTasks_WhenSuccessful() {
+        var expectedTaskList = taskUtils.newTaskList();
+
+        BDDMockito.when(repository.findAll()).thenReturn(expectedTaskList);
+
+        var taskList = service.findAll();
+
+        Assertions.assertThat(taskList)
+                .isNotNull()
+                .hasSize(expectedTaskList.size())
+                .hasSameElementsAs(expectedTaskList);
+    }
 }
