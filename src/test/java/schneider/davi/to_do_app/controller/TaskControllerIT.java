@@ -31,6 +31,7 @@ class TaskControllerIT {
     @Test
     @Order(1)
     @DisplayName("POST /v1/tasks creates a task")
+    @Sql(value = "/sql/clean_tasks_db.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void save_ReturnsTaskPostResponse_WhenSuccessful() throws IOException {
         var request = fileUtils.readResourceLoader("task/post-request-task-200.json");
 
@@ -63,7 +64,7 @@ class TaskControllerIT {
                 .forEach(taskGetResponse -> Assertions.assertThat(taskGetResponse).hasNoNullFieldsOrProperties());
 
         JsonAssertions.assertThatJson(responseEntity.getBody())
-                .whenIgnoringPaths("id")
+                .whenIgnoringPaths("[*].id")
                 .isEqualTo(expectedResponse);
     }
 
