@@ -2,6 +2,7 @@ package schneider.davi.to_do_app.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import schneider.davi.to_do_app.mapper.TaskMapper;
@@ -29,7 +30,7 @@ public class TaskController {
 
         var taskPostResponse = mapper.toTaskPostResponse(savedTask);
 
-        return ResponseEntity.ok(taskPostResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(taskPostResponse);
     }
 
     @GetMapping
