@@ -18,10 +18,10 @@ public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
-    @NotBlank(message = "The field 'id' is required")
+    @Column(nullable = false)
     private Long id;
-    @NotBlank(message = "The field 'title' is required")
+    @Column(nullable = false)
     private String title;
-    @NotBlank(message = "The field 'description' is required")
+    @Column(nullable = false)
     private String description;
 }
