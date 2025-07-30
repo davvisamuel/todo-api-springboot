@@ -9,6 +9,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
+@With
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)

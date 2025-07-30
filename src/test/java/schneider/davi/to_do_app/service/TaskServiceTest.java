@@ -91,8 +91,8 @@ class TaskServiceTest {
 
     @Test
     @Order(5)
-    @DisplayName("findById returns a NotFoundException when task is not found")
-    void findById_ReturnsNotFoundException_WhenTaskIsNotFound() {
+    @DisplayName("findById Throws NotFoundException when task is not found")
+    void findById_ThrowsNotFoundException_WhenTaskIsNotFound() {
         var id = 99L;
 
         BDDMockito.when(repository.findById(id)).thenReturn(Optional.empty());
@@ -120,14 +120,53 @@ class TaskServiceTest {
 
     @Test
     @Order(7)
-    @DisplayName("delete Throw NotFoundException when task is not found")
-    void delete_ThrowNotFoundException_WhenTaskIsNotFound() {
+    @DisplayName("delete Throws NotFoundException when task is not found")
+    void delete_ThrowsNotFoundException_WhenTaskIsNotFound() {
         var id = 99L;
 
         BDDMockito.when(repository.findById(id)).thenReturn(Optional.empty());
 
         Assertions.assertThatException()
                 .isThrownBy(() -> service.delete(id))
+                .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("update updates task when task is found by id")
+    void update_UpdatesTask_WhenTaskIsFound() {
+        var savedTask = taskUtils.newSavedTask();
+
+        var taskToUpdate = taskUtils.newSavedTask()
+                .withTitle("Ir a feira");
+
+        var taskToUpdateId = taskToUpdate.getId();
+
+        BDDMockito.when(repository.findById(taskToUpdateId)).thenReturn(Optional.of(savedTask));
+
+        BDDMockito.when(repository.save(taskToUpdate)).thenReturn(taskToUpdate);
+
+        var updatedTask = service.update(taskToUpdate);
+
+        Assertions.assertThat(updatedTask)
+                .isNotNull()
+                .hasNoNullFieldsOrProperties()
+                .isEqualTo(taskToUpdate);
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("update Throws NotFoundException when task is not found")
+    void update_ThrowsNotFoundException_WhenTaskIsNotFound() {
+        var taskToUpdate = taskUtils.newSavedTask()
+                .withId(99L);
+
+        var id = taskToUpdate.getId();
+
+        BDDMockito.when(repository.findById(id)).thenReturn(Optional.empty());
+
+        Assertions.assertThatException()
+                .isThrownBy(() -> service.update(taskToUpdate))
                 .isInstanceOf(NotFoundException.class);
     }
 }
