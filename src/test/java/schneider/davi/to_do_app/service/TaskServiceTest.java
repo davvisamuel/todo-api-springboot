@@ -8,7 +8,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import schneider.davi.to_do_app.commons.TaskUtils;
+import schneider.davi.to_do_app.domain.Task;
+import schneider.davi.to_do_app.exception.NotFoundException;
 import schneider.davi.to_do_app.repository.TaskRepository;
+
+import java.util.Optional;
+
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -52,5 +58,36 @@ class TaskServiceTest {
                 .isNotNull()
                 .hasSize(expectedTaskList.size())
                 .hasSameElementsAs(expectedTaskList);
+    }
+
+    @Test
+    @Order(3)
+    @DisplayName("findById returns a task when task is found")
+    void findById_ReturnsTaskById_WhenTaskIsFound() {
+        var expectedTask = taskUtils.newTaskList().getFirst();
+
+        var id = expectedTask.getId();
+
+        BDDMockito.when(repository.findById(id)).thenReturn(Optional.of(expectedTask));
+
+        var task = service.findById(id);
+
+        Assertions.assertThat(task)
+                .isNotNull()
+                .hasNoNullFieldsOrProperties()
+                .isEqualTo(expectedTask);
+    }
+
+    @Test
+    @Order(3)
+    @DisplayName("findById returns a NotFoundException when task is not found")
+    void findById_ReturnsNotFoundException_WhenTaskIsNotFound() {
+        var id = 99L;
+
+        BDDMockito.when(repository.findById(id)).thenReturn(Optional.empty());
+
+        Assertions.assertThatException()
+                .isThrownBy(() -> service.findById(id))
+                .isInstanceOf(NotFoundException.class);
     }
 }
