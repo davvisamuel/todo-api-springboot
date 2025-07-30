@@ -8,13 +8,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import schneider.davi.to_do_app.commons.TaskUtils;
-import schneider.davi.to_do_app.domain.Task;
 import schneider.davi.to_do_app.exception.NotFoundException;
 import schneider.davi.to_do_app.repository.TaskRepository;
 
+import java.util.Collections;
 import java.util.Optional;
-
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -62,6 +60,19 @@ class TaskServiceTest {
 
     @Test
     @Order(3)
+    @DisplayName("findAll returns an empty list")
+    void findAll_ReturnsEmptyList_WhenSuccessful() {
+        BDDMockito.when(repository.findAll()).thenReturn(Collections.emptyList());
+
+        var taskList = service.findAll();
+
+        Assertions.assertThat(taskList)
+                .isNotNull()
+                .isEmpty();
+    }
+
+    @Test
+    @Order(4)
     @DisplayName("findById returns a task when task is found")
     void findById_ReturnsTaskById_WhenTaskIsFound() {
         var expectedTask = taskUtils.newTaskList().getFirst();
@@ -79,7 +90,7 @@ class TaskServiceTest {
     }
 
     @Test
-    @Order(3)
+    @Order(5)
     @DisplayName("findById returns a NotFoundException when task is not found")
     void findById_ReturnsNotFoundException_WhenTaskIsNotFound() {
         var id = 99L;
