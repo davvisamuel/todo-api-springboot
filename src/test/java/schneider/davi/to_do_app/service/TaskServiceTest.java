@@ -101,4 +101,33 @@ class TaskServiceTest {
                 .isThrownBy(() -> service.findById(id))
                 .isInstanceOf(NotFoundException.class);
     }
+
+    @Test
+    @Order(6)
+    @DisplayName("delete removes task when task is found by id")
+    void delete_RemovesTask_WhenTaskIsFound() {
+        var expectedTask = taskUtils.newSavedTask();
+
+        var id = expectedTask.getId();
+
+        BDDMockito.when(repository.findById(id)).thenReturn(Optional.of(expectedTask));
+
+        BDDMockito.doNothing().when(repository).delete(expectedTask);
+
+        Assertions.assertThatNoException()
+                .isThrownBy(() -> service.delete(id));
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("delete Throw NotFoundException when task is not found")
+    void delete_ThrowNotFoundException_WhenTaskIsNotFound() {
+        var id = 99L;
+
+        BDDMockito.when(repository.findById(id)).thenReturn(Optional.empty());
+
+        Assertions.assertThatException()
+                .isThrownBy(() -> service.delete(id))
+                .isInstanceOf(NotFoundException.class);
+    }
 }
