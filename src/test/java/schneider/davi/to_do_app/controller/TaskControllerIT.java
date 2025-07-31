@@ -9,10 +9,14 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.testcontainers.context.ImportTestcontainers;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import schneider.davi.to_do_app.commons.FileUtils;
+import schneider.davi.to_do_app.config.TestContainersConfiguration;
 import schneider.davi.to_do_app.repository.TaskRepository;
 import schneider.davi.to_do_app.response.TaskGetResponse;
 import schneider.davi.to_do_app.response.TaskPostResponse;
@@ -24,6 +28,8 @@ import java.util.stream.Stream;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Import(TestContainersConfiguration.class)
+@ActiveProfiles("itest")
 class TaskControllerIT {
     private static final String URL = "/v1/tasks";
     @Autowired

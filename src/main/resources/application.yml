@@ -12,7 +12,7 @@ spring:
     name: to-do-app
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
 
 server:
   port: 8080
