@@ -3,6 +3,9 @@ package schneider.davi.to_do_app.controller;
 import net.javacrumbs.jsonunit.assertj.JsonAssertions;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -17,6 +20,7 @@ import schneider.davi.to_do_app.response.TaskPutResponse;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Stream;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -180,6 +184,41 @@ class TaskControllerIT {
 
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         JsonAssertions.assertThatJson(response.getBody()).isNotNull().isEqualTo(expectedResponse);
+    }
+
+    @ParameterizedTest
+    @MethodSource("methodSource")
+    @Order(8)
+    @DisplayName("PUT /v1/tasks Throws NotFoundException when task is not found")
+    void update_ThrowsBadRequest_WhenMissingFields(String requestFile, String responseFile) throws IOException {
+        var request = fileUtils.readResourceLoader("%s".formatted(requestFile));
+        var expectedResponse = fileUtils.readResourceLoader("%s".formatted(responseFile));
+
+        var httpEntity = buildHttpEntity(request);
+
+        var response = testRestTemplate.exchange(
+                URL,
+                HttpMethod.PUT,
+                httpEntity,
+                String.class
+        );
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        Assertions.assertThat(response.getBody()).isNotNull();
+
+        JsonAssertions.assertThatJson(response.getBody())
+                .whenIgnoringPaths("timestamp")
+                .isEqualTo(expectedResponse);
+
+    }
+
+    private static Stream<Arguments> methodSource() {
+        return Stream.of(
+                Arguments.of("/task/put-request-task-blank-fields-400.json", "/task/put-response-task-blank-fields-400.json"),
+                Arguments.of("/task/put-request-task-empty-fields-400.json", "/task/put-response-task-empty-fields-400.json"),
+                Arguments.of("/task/put-request-task-null-fields-400.json", "/task/put-response-task-null-fields-400.json")
+        );
     }
 
     private static HttpEntity<String> buildHttpEntity(String request) {
