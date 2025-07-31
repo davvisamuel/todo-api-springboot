@@ -187,10 +187,10 @@ class TaskControllerIT {
     }
 
     @ParameterizedTest
-    @MethodSource("methodSource")
+    @MethodSource("providePutArguments")
     @Order(8)
-    @DisplayName("PUT /v1/tasks Throws NotFoundException when task is not found")
-    void update_ThrowsBadRequest_WhenMissingFields(String requestFile, String responseFile) throws IOException {
+    @DisplayName("PUT /v1/tasks returns bad request when fields are invalid")
+    void update_ReturnsBadRequest_WhenFieldsAreInvalid(String requestFile, String responseFile) throws IOException {
         var request = fileUtils.readResourceLoader("%s".formatted(requestFile));
         var expectedResponse = fileUtils.readResourceLoader("%s".formatted(responseFile));
 
@@ -213,7 +213,42 @@ class TaskControllerIT {
 
     }
 
-    private static Stream<Arguments> methodSource() {
+    @ParameterizedTest
+    @MethodSource("providePostArguments")
+    @Order(9)
+    @DisplayName("POST /v1/tasks returns bad request when fields are invalid")
+    void save_ReturnsBadRequest_WhenFieldsAreInvalid(String requestFile, String responseFile) throws IOException {
+        var request = fileUtils.readResourceLoader("%s".formatted(requestFile));
+        var expectedResponse = fileUtils.readResourceLoader("%s".formatted(responseFile));
+
+        var httpEntity = buildHttpEntity(request);
+
+        var response = testRestTemplate.exchange(
+                URL,
+                HttpMethod.POST,
+                httpEntity,
+                String.class
+        );
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        Assertions.assertThat(response.getBody()).isNotNull();
+
+        JsonAssertions.assertThatJson(response.getBody())
+                .whenIgnoringPaths("timestamp")
+                .isEqualTo(expectedResponse);
+
+    }
+
+    private static Stream<Arguments> providePostArguments() {
+        return Stream.of(
+                Arguments.of("/task/post-request-task-blank-fields-400.json", "/task/post-response-task-blank-fields-400.json"),
+                Arguments.of("/task/post-request-task-empty-fields-400.json", "/task/post-response-task-empty-fields-400.json"),
+                Arguments.of("/task/post-request-task-null-fields-400.json", "/task/post-response-task-null-fields-400.json")
+        );
+    }
+
+    private static Stream<Arguments> providePutArguments() {
         return Stream.of(
                 Arguments.of("/task/put-request-task-blank-fields-400.json", "/task/put-response-task-blank-fields-400.json"),
                 Arguments.of("/task/put-request-task-empty-fields-400.json", "/task/put-response-task-empty-fields-400.json"),
