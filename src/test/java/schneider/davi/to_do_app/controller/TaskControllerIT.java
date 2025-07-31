@@ -13,6 +13,7 @@ import schneider.davi.to_do_app.commons.FileUtils;
 import schneider.davi.to_do_app.repository.TaskRepository;
 import schneider.davi.to_do_app.response.TaskGetResponse;
 import schneider.davi.to_do_app.response.TaskPostResponse;
+import schneider.davi.to_do_app.response.TaskPutResponse;
 
 import java.io.IOException;
 import java.util.List;
@@ -71,7 +72,7 @@ class TaskControllerIT {
     @Test
     @Order(3)
     @DisplayName("GET /v1/tasks returns a empty list")
-    void findAll_ReturnsEmptyList_WhenSuccessful() throws IOException {
+    void findAll_ReturnsEmptyList_WhenSuccessful() {
         var typeReference = new ParameterizedTypeReference<List<TaskGetResponse>>() {
         };
 
@@ -87,7 +88,7 @@ class TaskControllerIT {
     @DisplayName("DELETE /v1/tasks/{1} removes task")
     @Sql(value = "/sql/init_two_tasks_db.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(value = "/sql/clean_tasks_db.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    void delete_RemovesTask_WhenTaskIsFound() throws IOException {
+    void delete_RemovesTask_WhenTaskIsFound() {
 
         var taskToDelete = repository.findAll().getFirst();
 
@@ -125,6 +126,60 @@ class TaskControllerIT {
 
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         Assertions.assertThat(response.getBody()).isEqualTo(expectedResponse);
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("PUT /v1/tasks Returns an updated task")
+    @Sql(value = "/sql/init_two_tasks_db.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(value = "/sql/clean_tasks_db.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void update_ReturnsUpdatedTask_WhenTaskIsFound() throws IOException {
+        var savedTask = repository.findAll().getFirst();
+
+        var request = fileUtils
+                .readResourceLoader("/task/put-request-task-200.json")
+                .replace("1", savedTask.getId().toString());
+
+        var expectedResponse = fileUtils
+                .readResourceLoader("/task/put-response-task-200.json")
+                .replace("1", savedTask.getId().toString());
+
+        var httpEntity = buildHttpEntity(request);
+
+        var response = testRestTemplate.exchange(
+                URL,
+                HttpMethod.PUT,
+                httpEntity,
+                TaskPutResponse.class
+        );
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        JsonAssertions
+                .assertThatJson(response.getBody())
+                .isNotNull()
+                .isEqualTo(expectedResponse);
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("PUT /v1/tasks Throws NotFoundException when task is not found")
+    void update_ThrowsNotFoundException_WhenTaskIsNotFound() throws IOException {
+        var request = fileUtils.readResourceLoader("/task/put-request-task-404.json");
+
+        var expectedResponse = fileUtils.readResourceLoader("/task/put-response-task-404.json");
+
+        var httpEntity = buildHttpEntity(request);
+
+        var response = testRestTemplate.exchange(
+                URL,
+                HttpMethod.PUT,
+                httpEntity,
+                String.class
+        );
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        JsonAssertions.assertThatJson(response.getBody()).isNotNull().isEqualTo(expectedResponse);
     }
 
     private static HttpEntity<String> buildHttpEntity(String request) {
