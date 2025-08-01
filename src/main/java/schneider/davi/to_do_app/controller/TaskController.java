@@ -1,5 +1,6 @@
 package schneider.davi.to_do_app.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("v1/tasks")
 @RequiredArgsConstructor
+@Tag(name = "Task API", description = "Endpoints for managing tasks: create, retrieve, update, and delete.")
 public class TaskController {
     private final TaskService service;
     private final TaskMapper mapper;
